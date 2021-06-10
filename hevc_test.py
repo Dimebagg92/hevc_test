@@ -18,6 +18,7 @@ def run_mc(input, output, perf=15):
     fps = fps_dict[os.path.basename(os.path.splitext(input)[0])]
 
     cmd = ['/home1/irteam/donghwan/demo_hevc_sdk_linux_x64_release/bin/sample_enc_hevc',
+           '-I420'
            '-w', '3840',
            '-h', '2160',
            '-f', f'{fps}',
