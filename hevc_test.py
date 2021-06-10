@@ -6,7 +6,7 @@ import subprocess
 
 def run_ffmpeg(input, output, preset='fast', crf=26):
     print(f'input: {input} / preset: {preset}')
-    cmd = ['/usr/local/bin/ffmpeg',
+    cmd = ['/home1/irteam/donghwan/ffmpeg-git-20210528-amd64-static/ffmpeg',
            '-y',
            '-i', f'{input}',
            '-c:v', 'libx265',
@@ -19,8 +19,10 @@ def run_ffmpeg(input, output, preset='fast', crf=26):
     return subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
 
 def parse_ffmpeg(p):
+    lastline = p.stdout.readlines()[-1]
+    print(lastline)
     pattern = re.compile(r'encoded .* frames in .*s \((.*) fps\), (.*) kb/s, Avg QP:.*')
-    searched = pattern.search(p.stdout.readlines()[-1])
+    searched = pattern.search(lastline)
 
     if searched:
         fps = searched.group(1)
