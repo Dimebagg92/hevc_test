@@ -31,6 +31,7 @@ def run_ffmpeg(input, output, preset='fast', crf=26):
     print(f'input: {input} / preset: {preset}')
     cmd = ['/home1/irteam/donghwan/ffmpeg-git-20210528-amd64-static/ffmpeg',
            '-y',
+           '-video_size', '3840x2160',
            '-i', f'{input}',
            '-c:v', 'libx265',
            '-crf', f'{crf}',
@@ -78,7 +79,6 @@ if __name__ == '__main__':
         parse_ffmpeg(p)
 
     p = run_mc(input, output)
-    print(p.stdout.readlines())
     # for filename in os.listdir(input_path):
     #     if filename == '.DS_Store':
     #         continue
