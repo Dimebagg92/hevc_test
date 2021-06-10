@@ -16,7 +16,7 @@ def run_ffmpeg(input, output, preset='fast', crf=26):
            '-b:a', '128k',
            f'{output}'
            ]
-    return subprocess.run(cmd, capture_output=True, text=True)
+    return subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
 def parse_ffmpeg(p):
     pattern = re.compile(r'encoded .* frames in .*s \((.*) fps\), (.*) kb/s, Avg QP:.*')
@@ -31,8 +31,8 @@ def parse_ffmpeg(p):
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    input_path = '/Users/dhkim/Downloads/donghwan/original/4k'
-    output_path = '/Users/dhkim/Downloads/donghwan/result/4k'
+    input_path = '../../original/4k'
+    output_path = '../../result/4k'
     presets = ['ultrafast',
                'superfast',
                'veryfast',
