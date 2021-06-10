@@ -16,11 +16,11 @@ def run_ffmpeg(input, output, preset='fast', crf=26):
            '-b:a', '128k',
            f'{output}'
            ]
-    return subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    return subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
 
 def parse_ffmpeg(p):
     pattern = re.compile(r'encoded .* frames in .*s \((.*) fps\), (.*) kb/s, Avg QP:.*')
-    searched = pattern.search(p.stderr)
+    searched = pattern.search(p.stdout.readlines()[-1])
 
     if searched:
         fps = searched.group(1)
@@ -56,5 +56,10 @@ if __name__ == '__main__':
     #     output = f'{output_path}/{filename}'
     #     p = run_ffmpeg(input, output, 'ultrafast')
     #     parse_ffmpeg(p)
+
+    # input = f'{input_path}/bike1_short.mp4'
+    # output = f'{output_path}/bike1_short.mp4'
+    # p = run_ffmpeg(input, output, 'ultrafast')
+    # print(p.stdout.readlines()[-1])
 
     print('done')
