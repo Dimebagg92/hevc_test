@@ -27,10 +27,10 @@ FF_PRESET = {'fast': 'superfast',
 INPUT_PATH = '../original/4k'
 OUTPUT_PATH = '../result/4k'
 
-def run_mc(input, speed='fast', crf=28):
+def run_mc(inputfile, speed='fast', crf=28):
     fps = FPS_DICT[os.path.basename(os.path.splitext(input)[0])]
-    input = f'{INPUT_PATH}/{input}.yuv'
-    output = f'{OUTPUT_PATH}/mc/{input}/{speed}/input_{speed}_crf{crf}.hevc'
+    input = f'{INPUT_PATH}/{inputfile}.yuv'
+    output = f'{OUTPUT_PATH}/mc/{inputfile}/{speed}/input_{speed}_crf{crf}.hevc'
 
     cmd = ['/home1/irteam/donghwan/demo_hevc_sdk_linux_x64_release/bin/sample_enc_hevc',
            '-I420',
@@ -46,9 +46,9 @@ def run_mc(input, speed='fast', crf=28):
     return subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
 
-def run_ffmpeg(input, speed='fast', crf=28):
-    input = f'{INPUT_PATH}/{input}.yuv'
-    output = f'{OUTPUT_PATH}/ff/{input}/{speed}/input_{speed}_crf{crf}.hevc'
+def run_ffmpeg(inputfile, speed='fast', crf=28):
+    input = f'{INPUT_PATH}/{inputfile}.yuv'
+    output = f'{OUTPUT_PATH}/ff/{inputfile}/{speed}/input_{speed}_crf{crf}.hevc'
     cmd = ['/home1/irteam/donghwan/ffmpeg-git-20210528-amd64-static/ffmpeg',
            '-y',
            '-video_size', '3840x2160',
