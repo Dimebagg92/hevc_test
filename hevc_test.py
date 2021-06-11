@@ -95,8 +95,12 @@ def _parse_stdout(pattern, stdout):
     return searched.group(1), searched.group(2)
 
 
-def write_result_csv(speed, crf, fps, bitrate)
-    return 0
+def write_result_csv(csv_file, csv_columns, result_data):
+    with open(csv_file, 'w') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=csv_columns)
+        writer.writeheader()
+        for data in result_data:
+            writer.writerow(data)
 
 
 if __name__ == '__main__':
@@ -116,11 +120,7 @@ if __name__ == '__main__':
                                     'fps': fps,
                                     'bitrate': bitrate
                                     })
-            with open(csv_file, 'w') as csvfile:
-                writer = csv.DictWriter(csvfile, fieldnames=csv_columns)
-                writer.writeheader()
-                for data in result_data:
-                    writer.writerow(data)
+            write_result_csv(csv_file, csv_columns, result_data)
 
 
     for inputfile in input_set:
@@ -135,28 +135,7 @@ if __name__ == '__main__':
                                     'fps': fps,
                                     'bitrate': bitrate
                                     })
-            with open(csv_file, 'w') as csvfile:
-                writer = csv.DictWriter(csvfile, fieldnames=csv_columns)
-                writer.writeheader()
-                for data in result_data:
-                    writer.writerow(data)
+            write_result_csv(csv_file, csv_columns, result_data)
 
-    csv_columns = ['crf', 'fps', 'bitrate']
-    dict_data = [
-        {'No': 1, 'Name': 'Alex', 'Country': 'India'},
-        {'No': 2, 'Name': 'Ben', 'Country': 'USA'},
-        {'No': 3, 'Name': 'Shri Ram', 'Country': 'India'},
-        {'No': 4, 'Name': 'Smith', 'Country': 'USA'},
-        {'No': 5, 'Name': 'Yuva Raj', 'Country': 'India'},
-    ]
-    csv_file = "Names.csv"
-    try:
-        with open(csv_file, 'w') as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=csv_columns)
-            writer.writeheader()
-            for data in dict_data:
-                writer.writerow(data)
-    except IOError:
-        print("I/O error")
 
     print('done')
