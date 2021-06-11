@@ -53,7 +53,7 @@ def parse_ffmpeg(p):
 
 
 def parse_mc(p):
-    pattern = r'Average speed achieved.*(\w*).*fps.*Average bitrate.*(\w*).*kb/s'
+    pattern = r'Average speed achieved.*\t(\d*.*\d*) .*fps.*Average bitrate *(\d*.*\d*) kb/s'
     stdout = str(p.stdout.read())
     _parse_stdout(pattern, stdout)
     fps, bitrate = _parse_stdout(pattern, stdout)
