@@ -25,11 +25,13 @@ def run_mc(input, output, perf=15):
            '-v', f'{input}',
            '-o', f'{output}',
            ]
-    return subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+    return subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
 
 def run_ffmpeg(input, output, preset='fast', crf=26):
     print(f'input: {input} / preset: {preset}')
-    cmd = ['/home1/irteam/donghwan/ffmpeg-git-20210528-amd64-static/ffmpeg',
+    # cmd = ['/home1/irteam/donghwan/ffmpeg-git-20210528-amd64-static/ffmpeg',
+    cmd = ['ffmpeg',
            '-y',
            '-video_size', '3840x2160',
            '-i', f'{input}',
@@ -40,13 +42,12 @@ def run_ffmpeg(input, output, preset='fast', crf=26):
            '-b:a', '128k',
            f'{output}'
            ]
-    return subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+    return subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
 
 def parse_ffmpeg(p):
-    lastline = p.stdout.readlines()[-1]
-    pattern = re.compile(r'encoded .* frames in .*s \((.*) fps\), (.*) kb/s, Avg QP:.*')
-    searched = pattern.search(lastline)
+    pattern = r'encoded .* frames in .*s \((.*) fps\), (.*) kb/s, Avg QP:.*'
+    searched = re.findall(pattern, str(p.stdout.read()))
 
     if not searched:
         print('no match')
@@ -54,7 +55,21 @@ def parse_ffmpeg(p):
 
     fps = searched.group(1)
     bitrate = searched.group(2)
+    print(searched)
     print(f'fps: {fps}, bitrate: {bitrate}')
+
+
+def _parse_stdout(pattern, p):
+    stdout = p.str(p.stdout.read())
+    searched = re.findall(pattern, stdout)
+
+    if not searched:
+        print('no match')
+        return
+
+    fps = searched.group(1)
+    bitrate = searched.group(2)
+    return fps, bitrate
 
 
 # Press the green button in the gutter to run the script.
@@ -78,7 +93,10 @@ if __name__ == '__main__':
         p = run_ffmpeg(input, output, preset)
         parse_ffmpeg(p)
 
-    p = run_mc(input, output)
+    # for perf in range(0, 31):
+    #     p = run_mc(input, output)
+    #     parse_mc(p)
+
     # for filename in os.listdir(input_path):
     #     if filename == '.DS_Store':
     #         continue
