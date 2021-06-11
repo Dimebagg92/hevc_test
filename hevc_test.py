@@ -30,8 +30,8 @@ def run_mc(input, output, perf=15):
 
 def run_ffmpeg(input, output, preset='fast', crf=26):
     print(f'input: {input} / preset: {preset}')
-    # cmd = ['/home1/irteam/donghwan/ffmpeg-git-20210528-amd64-static/ffmpeg',
-    cmd = ['ffmpeg',
+    cmd = ['/home1/irteam/donghwan/ffmpeg-git-20210528-amd64-static/ffmpeg',
+    # cmd = ['ffmpeg',
            '-y',
            '-video_size', '3840x2160',
            '-i', f'{input}',
@@ -48,8 +48,17 @@ def run_ffmpeg(input, output, preset='fast', crf=26):
 def parse_ffmpeg(p):
     pattern = r'encoded .* frames in .*s \((.*) fps\), (.*) kb/s, Avg QP:.*'
     stdout = str(p.stdout.read())
-    print(stdout)
     _parse_stdout(pattern, stdout)
+    fps, bitrate = _parse_stdout(pattern, stdout)
+    print(fps, bitrate)
+
+
+def parse_mc(p):
+    pattern = r'Average speed achieved  (\w*) fps .* Average bitrate         (\w*) kb/s'
+    stdout = str(p.stdout.read())
+    _parse_stdout(pattern, stdout)
+    fps, bitrate = _parse_stdout(pattern, stdout)
+    print(fps, bitrate)
 
 
 def _parse_stdout(pattern, stdout):
@@ -84,9 +93,9 @@ if __name__ == '__main__':
         p = run_ffmpeg(input, output, preset)
         parse_ffmpeg(p)
 
-    # for perf in range(0, 31):
-    #     p = run_mc(input, output)
-    #     parse_mc(p)
+    for perf in range(0, 31):
+        p = run_mc(input, output)
+        parse_mc(p)
 
     # for filename in os.listdir(input_path):
     #     if filename == '.DS_Store':
