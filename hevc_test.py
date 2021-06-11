@@ -6,6 +6,7 @@ import subprocess
 
 
 def run_mc(input, output, perf=15):
+    print(perf)
     fps_dict = {'bike1': 25,
                 'circuit1': 29.97,
                 'city1': 23.98,
@@ -14,7 +15,6 @@ def run_mc(input, output, perf=15):
                 'movie1': 23.98,
                 'tennis1': 29.97
                 }
-
     fps = fps_dict[os.path.basename(os.path.splitext(input)[0])]
 
     cmd = ['/home1/irteam/donghwan/demo_hevc_sdk_linux_x64_release/bin/sample_enc_hevc',
@@ -31,7 +31,6 @@ def run_mc(input, output, perf=15):
 def run_ffmpeg(input, output, preset='fast', crf=26):
     print(f'input: {input} / preset: {preset}')
     cmd = ['/home1/irteam/donghwan/ffmpeg-git-20210528-amd64-static/ffmpeg',
-    # cmd = ['ffmpeg',
            '-y',
            '-video_size', '3840x2160',
            '-i', f'{input}',
@@ -56,6 +55,7 @@ def parse_ffmpeg(p):
 def parse_mc(p):
     pattern = r'Average speed achieved  (\w*) fps .* Average bitrate         (\w*) kb/s'
     stdout = str(p.stdout.read())
+    print('stdout:', stdout)
     _parse_stdout(pattern, stdout)
     fps, bitrate = _parse_stdout(pattern, stdout)
     print(fps, bitrate)
@@ -94,7 +94,7 @@ if __name__ == '__main__':
         parse_ffmpeg(p)
 
     for perf in range(0, 31):
-        p = run_mc(input, output)
+        p = run_mc(input, output, perf)
         parse_mc(p)
 
     # for filename in os.listdir(input_path):
