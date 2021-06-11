@@ -28,7 +28,7 @@ INPUT_PATH = '../original/4k'
 OUTPUT_PATH = '../result/4k'
 
 def run_mc(inputfile, speed='fast', crf=28):
-    fps = FPS_DICT[os.path.basename(os.path.splitext(input)[0])]
+    fps = FPS_DICT[os.path.basename(os.path.splitext(inputfile)[0])]
     input = f'{INPUT_PATH}/{inputfile}.yuv'
     output = f'{OUTPUT_PATH}/mc/{inputfile}/{speed}/input_{speed}_crf{crf}.hevc'
 
