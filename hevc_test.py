@@ -114,7 +114,7 @@ if __name__ == '__main__':
             csv_columns = ['crf', 'fps', 'bitrate']
             result_data = []
             for crf in crf_set:
-                print(f'Running FFmpeg {inputfile}_{speed}_crf...')
+                print(f'Running FFmpeg {inputfile}_{speed}_crf{crf}...')
                 p = run_ffmpeg(inputfile, speed=speed, crf=crf)
                 fps, bitrate = parse_ffmpeg(p)
                 result_data.append({'crf': crf,
@@ -130,7 +130,7 @@ if __name__ == '__main__':
             csv_columns = ['crf', 'fps', 'bitrate']
             result_data = []
             for crf in crf_set:
-                print(f'Running MainConcept {inputfile}_{speed}_crf...')
+                print(f'Running FFmpeg {inputfile}_{speed}_crf{crf}...')
                 p = run_mc(inputfile, speed=speed, crf=crf)
                 fps, bitrate = parse_mc(p)
                 result_data.append({'crf': crf,
