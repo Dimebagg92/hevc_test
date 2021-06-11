@@ -24,6 +24,7 @@ def run_mc(input, output, perf=15):
            '-f', f'{fps}',
            '-v', f'{input}',
            '-o', f'{output}',
+           '-perf', f'{perf}'
            ]
     return subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
@@ -47,28 +48,27 @@ def run_ffmpeg(input, output, preset='fast', crf=26):
 def parse_ffmpeg(p):
     pattern = r'encoded .* frames in .*s \((.*) fps\), (.*) kb/s, Avg QP:.*'
     stdout = str(p.stdout.read())
-    _parse_stdout(pattern, stdout)
     fps, bitrate = _parse_stdout(pattern, stdout)
     print(fps, bitrate)
 
 
 def parse_mc(p):
-    pattern = r'Average speed achieved.*\t(\d*.*\d*) .*fps.*Average bitrate *(\d*.*\d*) kb/s'
+    pattern = r'Average speed achieved.*\t(\d*.*\d*) fps.*\nAverage bitrate.* (\d*.*\d*) kb/s'
+    # pattern_fps = r'Average speed achieved.*\t(\d*.*\d*) fps'
+    # pattern_bitrate = r'Average bitrate.* (\d*.*\d*) kb/s'
     stdout = str(p.stdout.read())
-    _parse_stdout(pattern, stdout)
     fps, bitrate = _parse_stdout(pattern, stdout)
     print(fps, bitrate)
 
 
 def _parse_stdout(pattern, stdout):
-    searched = re.search(pattern, stdout)
+    r = re.compile(pattern, re.DOTALL)
+    searched = r.search(stdout)
     if not searched:
         print('no match')
         return
 
-    fps = searched.group(1)
-    bitrate = searched.group(2)
-    return fps, bitrate
+    return searched.group(1), searched.group(2)
 
 
 # Press the green button in the gutter to run the script.
