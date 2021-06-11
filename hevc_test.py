@@ -47,22 +47,13 @@ def run_ffmpeg(input, output, preset='fast', crf=26):
 
 def parse_ffmpeg(p):
     pattern = r'encoded .* frames in .*s \((.*) fps\), (.*) kb/s, Avg QP:.*'
-    searched = re.findall(pattern, str(p.stdout.read()))
-
-    if not searched:
-        print('no match')
-        return
-
-    fps = searched.group(1)
-    bitrate = searched.group(2)
-    print(searched)
-    print(f'fps: {fps}, bitrate: {bitrate}')
+    stdout = str(p.stdout.read())
+    print(stdout)
+    _parse_stdout(pattern, stdout)
 
 
-def _parse_stdout(pattern, p):
-    stdout = p.str(p.stdout.read())
-    searched = re.findall(pattern, stdout)
-
+def _parse_stdout(pattern, stdout):
+    searched = re.search(pattern, stdout)
     if not searched:
         print('no match')
         return
