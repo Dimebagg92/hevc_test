@@ -4,18 +4,27 @@ import os.path
 import sys
 import subprocess
 
+FPS_DICT = {'bike1': 25,
+            'circuit1': 29.97,
+            'city1': 23.98,
+            'concert1': 29.97,
+            'game1': 59.44,
+            'movie1': 23.98,
+            'tennis1': 29.97
+            }
 
-def run_mc(input, output, perf=15):
-    print(perf)
-    fps_dict = {'bike1': 25,
-                'circuit1': 29.97,
-                'city1': 23.98,
-                'concert1': 29.97,
-                'game1': 59.44,
-                'movie1': 23.98,
-                'tennis1': 29.97
-                }
-    fps = fps_dict[os.path.basename(os.path.splitext(input)[0])]
+MC_PRESET = {'fast': 19,
+             'medium': 23,
+             'slow': 27
+             }
+
+FF_PRESET = {'fast': 'superfast',
+             'medium': 'fast',
+             'slow': 'slow'
+             }
+
+def run_mc(input, output, crf=28, speed='fast'):
+    fps = FPS_DICT[os.path.basename(os.path.splitext(input)[0])]
 
     cmd = ['/home1/irteam/donghwan/demo_hevc_sdk_linux_x64_release/bin/sample_enc_hevc',
            '-I420',
@@ -24,20 +33,21 @@ def run_mc(input, output, perf=15):
            '-f', f'{fps}',
            '-v', f'{input}',
            '-o', f'{output}',
-           '-perf', f'{perf}'
+           '-perf', f'{MC_PRESET[speed]}',
+           '-preset', '4k',
+           '-c', f'../config/crf{crf}.ini'
            ]
     return subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
 
-def run_ffmpeg(input, output, preset='fast', crf=26):
-    print(f'input: {input} / preset: {preset}')
+def run_ffmpeg(input, output, speed='fast', crf=28):
     cmd = ['/home1/irteam/donghwan/ffmpeg-git-20210528-amd64-static/ffmpeg',
            '-y',
            '-video_size', '3840x2160',
            '-i', f'{input}',
            '-c:v', 'libx265',
            '-crf', f'{crf}',
-           '-preset', f'{preset}',
+           '-preset', f'{FF_PRESET[speed]}',
            '-c:a', 'aac',
            '-b:a', '128k',
            f'{output}'
@@ -88,25 +98,14 @@ if __name__ == '__main__':
     input = f'{input_path}/bike1.yuv'
     output = f'{output_path}/bike1.hevc'
 
-    # for preset in presets:
-    #     p = run_ffmpeg(input, output, preset)
-    #     parse_ffmpeg(p)
+    speed_set = ['fast']
 
-    for perf in range(0, 31):
-        p = run_mc(input, output, perf)
+    for speed in speed_set:
+        p = run_ffmpeg(input, 'mc_test.hevc', speed)
+        parse_ffmpeg(p)
+
+    for speed in speed_set:
+        p = run_mc(input, 'ff_test.hevc', speed)
         parse_mc(p)
-
-    # for filename in os.listdir(input_path):
-    #     if filename == '.DS_Store':
-    #         continue
-    #     input = f'{input_path}/{filename}'
-    #     output = f'{output_path}/{filename}'
-    #     p = run_ffmpeg(input, output, 'ultrafast')
-    #     parse_ffmpeg(p)
-
-    # input = f'{input_path}/bike1_short.mp4'
-    # output = f'{output_path}/bike1_short.mp4'
-    # p = run_ffmpeg(input, output, 'ultrafast')
-    # print(p.stdout.readlines()[-1])
 
     print('done')
