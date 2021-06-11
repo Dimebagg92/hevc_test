@@ -23,7 +23,7 @@ FF_PRESET = {'fast': 'superfast',
              'slow': 'slow'
              }
 
-def run_mc(input, output, crf=28, speed='fast'):
+def run_mc(input, output, speed='fast', crf=28):
     fps = FPS_DICT[os.path.basename(os.path.splitext(input)[0])]
 
     cmd = ['/home1/irteam/donghwan/demo_hevc_sdk_linux_x64_release/bin/sample_enc_hevc',
@@ -101,11 +101,11 @@ if __name__ == '__main__':
     speed_set = ['fast']
 
     for speed in speed_set:
-        p = run_ffmpeg(input, 'mc_test.hevc', speed)
+        p = run_ffmpeg(input, 'mc_test.hevc', speed=speed)
         parse_ffmpeg(p)
 
     for speed in speed_set:
-        p = run_mc(input, 'ff_test.hevc', speed)
+        p = run_mc(input, 'ff_test.hevc', speed=speed)
         parse_mc(p)
 
     print('done')
