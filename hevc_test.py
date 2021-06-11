@@ -89,9 +89,9 @@ if __name__ == '__main__':
     input = f'{input_path}/bike1.yuv'
     output = f'{output_path}/bike1.hevc'
 
-    for preset in presets:
-        p = run_ffmpeg(input, output, preset)
-        parse_ffmpeg(p)
+    # for preset in presets:
+    #     p = run_ffmpeg(input, output, preset)
+    #     parse_ffmpeg(p)
 
     for perf in range(0, 31):
         p = run_mc(input, output, perf)
