@@ -2,6 +2,7 @@ import re
 import os
 import os.path
 import sys
+import csv
 import subprocess
 
 FPS_DICT = {'bike1': 25,
@@ -23,8 +24,13 @@ FF_PRESET = {'fast': 'superfast',
              'slow': 'slow'
              }
 
-def run_mc(input, output, speed='fast', crf=28):
+INPUT_PATH = '../original/4k'
+OUTPUT_PATH = '../result/4k'
+
+def run_mc(input, speed='fast', crf=28):
     fps = FPS_DICT[os.path.basename(os.path.splitext(input)[0])]
+    input = f'{INPUT_PATH}/{input}.yuv'
+    output = f'{OUTPUT_PATH}/mc/{input}/{speed}/input_{speed}_crf{crf}.hevc'
 
     cmd = ['/home1/irteam/donghwan/demo_hevc_sdk_linux_x64_release/bin/sample_enc_hevc',
            '-I420',
@@ -40,7 +46,9 @@ def run_mc(input, output, speed='fast', crf=28):
     return subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
 
-def run_ffmpeg(input, output, speed='fast', crf=28):
+def run_ffmpeg(input, speed='fast', crf=28):
+    input = f'{INPUT_PATH}/{input}.yuv'
+    output = f'{OUTPUT_PATH}/ff/{input}/{speed}/input_{speed}_crf{crf}.hevc'
     cmd = ['/home1/irteam/donghwan/ffmpeg-git-20210528-amd64-static/ffmpeg',
            '-y',
            '-video_size', '3840x2160',
@@ -58,54 +66,97 @@ def run_ffmpeg(input, output, speed='fast', crf=28):
 def parse_ffmpeg(p):
     pattern = r'encoded .* frames in .*s \((.*) fps\), (.*) kb/s, Avg QP:.*'
     stdout = str(p.stdout.read())
-    fps, bitrate = _parse_stdout(pattern, stdout)
-    print(fps, bitrate)
+    try:
+        fps, bitrate = _parse_stdout(pattern, stdout)
+    except Exception as e:
+        print('Parse Error!')
+        raise e
+    return fps, bitrate
 
 
 def parse_mc(p):
     pattern = r'Average speed achieved \\t(\d*.*\d*) fps.*Average bitrate\s*(\d*.*\d*) kb/s'
-    # pattern_fps = r'Average speed achieved.*\t(\d*.*\d*) fps'
-    # pattern_bitrate = r'Average bitrate.* (\d*.*\d*) kb/s'
     stdout = str(p.stdout.read())
-    fps, bitrate = _parse_stdout(pattern, stdout)
-    print(fps, bitrate)
+    try:
+        fps, bitrate = _parse_stdout(pattern, stdout)
+    except Exception as e:
+        print('Parse Error!')
+        raise e
+    return fps, bitrate
 
 
 def _parse_stdout(pattern, stdout):
     r = re.compile(pattern, re.DOTALL)
     searched = r.search(stdout)
     if not searched:
-        print('no match')
-        return
+        print(stdout)
+        raise Exception('no match')
 
     return searched.group(1), searched.group(2)
 
 
-# Press the green button in the gutter to run the script.
+def write_result_csv(speed, crf, fps, bitrate)
+    return 0
+
+
 if __name__ == '__main__':
-    input_path = '../original/4k'
-    output_path = '../result/4k'
-    presets = ['ultrafast',
-               'superfast',
-               'veryfast',
-               'faster',
-               'fast',
-               'medium',
-               'slow',
-               'slower',
-               'veryslow']
+    input_set = ['bike1', 'circuit1', 'city1', 'concert1', 'game1', 'movie1', 'tennis1']
+    speed_set = ['fast', 'medium', 'slow']
+    crf_set = [22, 24, 26, 28, 30, 32, 34]
 
-    input = f'{input_path}/bike1.yuv'
-    output = f'{output_path}/bike1.hevc'
+    for inputfile in input_set:
+        for speed in speed_set:
+            csv_file = f'ff_{inputfile}_{speed}.csv'
+            csv_columns = ['crf', 'fps', 'bitrate']
+            result_data = []
+            for crf in crf_set:
+                p = run_ffmpeg(inputfile, speed=speed, crf=crf)
+                fps, bitrate = parse_ffmpeg(p)
+                result_data.append({'crf': crf,
+                                    'fps': fps,
+                                    'bitrate': bitrate
+                                    })
+            with open(csv_file, 'w') as csvfile:
+                writer = csv.DictWriter(csvfile, fieldnames=csv_columns)
+                writer.writeheader()
+                for data in result_data:
+                    writer.writerow(data)
 
-    speed_set = ['fast']
 
-    for speed in speed_set:
-        p = run_ffmpeg(input, 'mc_test.hevc', speed=speed)
-        parse_ffmpeg(p)
+    for inputfile in input_set:
+        for speed in speed_set:
+            csv_file = f'ff_{inputfile}_{speed}.csv'
+            csv_columns = ['crf', 'fps', 'bitrate']
+            result_data = []
+            for crf in crf_set:
+                p = run_mc(inputfile, speed=speed, crf=crf)
+                fps, bitrate = parse_mc(p)
+                result_data.append({'crf': crf,
+                                    'fps': fps,
+                                    'bitrate': bitrate
+                                    })
+            with open(csv_file, 'w') as csvfile:
+                writer = csv.DictWriter(csvfile, fieldnames=csv_columns)
+                writer.writeheader()
+                for data in result_data:
+                    writer.writerow(data)
 
-    for speed in speed_set:
-        p = run_mc(input, 'ff_test.hevc', speed=speed)
-        parse_mc(p)
+    csv_columns = ['crf', 'fps', 'bitrate']
+    dict_data = [
+        {'No': 1, 'Name': 'Alex', 'Country': 'India'},
+        {'No': 2, 'Name': 'Ben', 'Country': 'USA'},
+        {'No': 3, 'Name': 'Shri Ram', 'Country': 'India'},
+        {'No': 4, 'Name': 'Smith', 'Country': 'USA'},
+        {'No': 5, 'Name': 'Yuva Raj', 'Country': 'India'},
+    ]
+    csv_file = "Names.csv"
+    try:
+        with open(csv_file, 'w') as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=csv_columns)
+            writer.writeheader()
+            for data in dict_data:
+                writer.writerow(data)
+    except IOError:
+        print("I/O error")
 
     print('done')
