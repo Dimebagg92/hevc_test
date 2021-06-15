@@ -36,7 +36,8 @@ def calc_vmaf(inputfile, speed_set, crf_set, method):
             enc = f'{OUTPUT_PATH}/{method}/{inputfile}/{speed}/{inputfile}_{speed}_crf{crf}.hevc'
             print(f'Calculating {inputfile} / {speed} / {crf}...')
             p = run_vmaf(enc, ref, fps)
-            parse_vmaf(p)
+            vmaf, psnr, ssin = parse_vmaf(p)
+            print(f'VMAF: {vmaf}, PSNR: {psnr}, SSIM: {ssim}')
 
 
 def run_vmaf(enc, ref, fps):
@@ -62,12 +63,12 @@ def parse_vmaf(p):
     searched = r.search(stdout)
     if not searched:
         print('No VMAF data matched')
-        print(stdout)
         return
     vmaf = searched.group(1)
     psnr = searched.group(2)
     ssim = searched.group(3)
     print(f'VMAF: {vmaf}, PSNR: {psnr}, SSIM: {ssim}')
+    return vmaf, psnr, ssim
 
 
 def run_mc(inputfile, speed='fast', crf=28):
