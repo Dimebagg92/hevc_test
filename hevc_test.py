@@ -49,7 +49,7 @@ def run_vmaf(enc, ref, fps):
            '-i', f'{enc}',
            '-lavfi', '[0:v]crop=3000:2160:0:0, setpts=PTS-STARTPTS[reference]; \
                         [1:v]crop=3000:2160:0:0, setpts=PTS-STARTPTS[distorted]; \
-                        [distorted][reference]libvmaf=psnr=1:ssim=1:log_fmt=xml:log_path={log_path}.xml',
+                        [distorted][reference]libvmaf=log_path=/dev/stdout:log_fmt=xml:ssim=1:psnr=1',
            '-f', 'null', '-'
            ]
     return subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -62,6 +62,7 @@ def parse_vmaf(p):
     searched = r.search(stdout)
     if not searched:
         print('No VMAF data matched')
+        print(stdout)
         return
     vmaf = searched.group(1)
     psnr = searched.group(2)
