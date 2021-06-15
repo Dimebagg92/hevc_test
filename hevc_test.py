@@ -65,7 +65,7 @@ def run_vmaf(enc, ref, fps):
 
 
 def parse_vmaf(p):
-    pattern = 'aggregateVMAF="(.*)" aggregatePSNR="(.*)" aggregateSSIM="(.*)"'
+    pattern = 'aggregateVMAF="(.*)" aggregatePSNR="(.*)" aggregateSSIM="(.*)" execFps'
     stdout = str(p.stdout.read())
     r = re.compile(pattern, re.DOTALL)
     searched = r.search(stdout)
