@@ -55,7 +55,7 @@ def run_vmaf(enc, ref, fps):
     return subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
 
-def parse_vmaf():
+def parse_vmaf(p):
     pattern = '<fyi numOfFrames="750" aggregateVMAF="(.*)" aggregatePSNR="(.*)" aggregateSSIM="(.*)" execFps="12.1109" timeTaken="61.9277" />'
     stdout = p.stdout.read()
     r = re.compile(pattern, re.DOTALL)
@@ -150,43 +150,43 @@ if __name__ == '__main__':
     speed_set = ['fast', 'medium', 'slow']
     crf_set = [22, 24, 26, 28, 30, 32, 34]
 
-    for inputfile in input_set:
-        for speed in speed_set:
-            csv_file = f'../data/ff_{inputfile}_{speed}.csv'
-            csv_columns = ['crf', 'fps', 'bitrate']
-            result_data = []
-            for crf in crf_set:
-                print(f'Running FFmpeg {inputfile}_{speed}_crf{crf}...')
-                p = run_ffmpeg(inputfile, speed=speed, crf=crf)
-                fps, bitrate = parse_ffmpeg(p)
-                result_data.append({'crf': crf,
-                                    'fps': fps,
-                                    'bitrate': bitrate
-                                    })
-            write_result_csv(csv_file, csv_columns, result_data)
-
-    for inputfile in input_set:
-        for speed in speed_set:
-            csv_file = f'../data/mc_{inputfile}_{speed}.csv'
-            csv_columns = ['crf', 'fps', 'bitrate']
-            result_data = []
-            for crf in crf_set:
-                print(f'Running MainConcept {inputfile}_{speed}_crf{crf}...')
-                p = run_mc(inputfile, speed=speed, crf=crf)
-                fps, bitrate = parse_mc(p)
-                result_data.append({'crf': crf,
-                                    'fps': fps,
-                                    'bitrate': bitrate
-                                    })
-            write_result_csv(csv_file, csv_columns, result_data)
+    # for inputfile in input_set:
+    #     for speed in speed_set:
+    #         csv_file = f'../data/ff_{inputfile}_{speed}.csv'
+    #         csv_columns = ['crf', 'fps', 'bitrate']
+    #         result_data = []
+    #         for crf in crf_set:
+    #             print(f'Running FFmpeg {inputfile}_{speed}_crf{crf}...')
+    #             p = run_ffmpeg(inputfile, speed=speed, crf=crf)
+    #             fps, bitrate = parse_ffmpeg(p)
+    #             result_data.append({'crf': crf,
+    #                                 'fps': fps,
+    #                                 'bitrate': bitrate
+    #                                 })
+    #         write_result_csv(csv_file, csv_columns, result_data)
+    #
+    # for inputfile in input_set:
+    #     for speed in speed_set:
+    #         csv_file = f'../data/mc_{inputfile}_{speed}.csv'
+    #         csv_columns = ['crf', 'fps', 'bitrate']
+    #         result_data = []
+    #         for crf in crf_set:
+    #             print(f'Running MainConcept {inputfile}_{speed}_crf{crf}...')
+    #             p = run_mc(inputfile, speed=speed, crf=crf)
+    #             fps, bitrate = parse_mc(p)
+    #             result_data.append({'crf': crf,
+    #                                 'fps': fps,
+    #                                 'bitrate': bitrate
+    #                                 })
+    #         write_result_csv(csv_file, csv_columns, result_data)
 
     ref = f'{INPUT_PATH}/bike1.yuv'
     enc = f'{OUTPUT_PATH}/ff/bike1/fast/bike1_fast_crf34.hevc'
     p = run_vmaf(enc, ref, 25)
     parse_vmaf(p)
 
-    for inputfile in input_set:
-        calc_vmaf(inputfile, speed_set, crf_set, 'ff')
-        calc_vmaf(inputfile, speed_set, crf_set, 'mc')
+    # for inputfile in input_set:
+    #     calc_vmaf(inputfile, speed_set, crf_set, 'ff')
+    #     calc_vmaf(inputfile, speed_set, crf_set, 'mc')
 
     print('done')
