@@ -30,7 +30,7 @@ OUTPUT_PATH = '../result/4k'
 def run_mc(inputfile, speed='fast', crf=28):
     fps = FPS_DICT[os.path.basename(os.path.splitext(inputfile)[0])]
     input = f'{INPUT_PATH}/{inputfile}.yuv'
-    output = f'{OUTPUT_PATH}/mc/{inputfile}/{speed}/input_{speed}_crf{crf}.hevc'
+    output = f'{OUTPUT_PATH}/mc/{inputfile}/{speed}/{inputfile}_{speed}_crf{crf}.hevc'
 
     cmd = ['/home1/irteam/donghwan/demo_hevc_sdk_linux_x64_release/bin/sample_enc_hevc',
            '-I420',
@@ -48,7 +48,7 @@ def run_mc(inputfile, speed='fast', crf=28):
 
 def run_ffmpeg(inputfile, speed='fast', crf=28):
     input = f'{INPUT_PATH}/{inputfile}.yuv'
-    output = f'{OUTPUT_PATH}/ff/{inputfile}/{speed}/input_{speed}_crf{crf}.hevc'
+    output = f'{OUTPUT_PATH}/ff/{inputfile}/{speed}/{inputfile}_{speed}_crf{crf}.hevc'
     cmd = ['/home1/irteam/donghwan/ffmpeg-git-20210528-amd64-static/ffmpeg',
            '-y',
            '-video_size', '3840x2160',
@@ -130,7 +130,7 @@ if __name__ == '__main__':
             csv_columns = ['crf', 'fps', 'bitrate']
             result_data = []
             for crf in crf_set:
-                print(f'Running FFmpeg {inputfile}_{speed}_crf{crf}...')
+                print(f'Running MainConcept {inputfile}_{speed}_crf{crf}...')
                 p = run_mc(inputfile, speed=speed, crf=crf)
                 fps, bitrate = parse_mc(p)
                 result_data.append({'crf': crf,
