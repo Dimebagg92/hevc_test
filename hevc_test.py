@@ -31,13 +31,21 @@ OUTPUT_PATH = '../result/4k'
 def calc_vmaf(inputfile, speed_set, crf_set, method):
     fps = FPS_DICT[os.path.basename(os.path.splitext(inputfile)[0])]
     ref = f'{INPUT_PATH}/{inputfile}.yuv'
+
     for speed in speed_set:
+        csv_file = f'../data/vmaf/{method}_{inputfile}_{speed}.csv'
+        csv_columns = ['psnr', 'ssim', 'vmaf']
+        result_data = []
         for crf in crf_set:
             enc = f'{OUTPUT_PATH}/{method}/{inputfile}/{speed}/{inputfile}_{speed}_crf{crf}.hevc'
             print(f'Calculating {inputfile} / {speed} / {crf}...')
             p = run_vmaf(enc, ref, fps)
             vmaf, psnr, ssin = parse_vmaf(p)
-            print(f'VMAF: {vmaf}, PSNR: {psnr}, SSIM: {ssim}')
+            result_data.append({'psnr': psnr,
+                                'ssim': ssim,
+                                'vmaf': vmaf
+                                })
+            write_result_csv(csv_file, csv_columns, result_data)
 
 
 def run_vmaf(enc, ref, fps):
