@@ -36,9 +36,11 @@ def calc_vmaf(inputfile, speed_set, crf_set, method):
             enc = f'{OUTPUT_PATH}/{method}/{inputfile}/{speed}/{inputfile}_{speed}_crf{crf}.hevc'
             print(f'Calculating {inputfile} / {speed} / {crf}...')
             p = run_vmaf(enc, ref, fps)
+            parse_vmaf(p)
 
 
 def run_vmaf(enc, ref, fps):
+    log_path = os.path.basename(os.path.splitext(enc)[0])
     cmd = ['/home1/irteam/donghwan/ffmpeg-git-20210528-amd64-static/ffmpeg',
            '-video_size', '3840x2160',
            '-r', f'{fps}',
@@ -47,10 +49,24 @@ def run_vmaf(enc, ref, fps):
            '-i', f'{enc}',
            '-lavfi', '[0:v]crop=3000:2160:0:0, setpts=PTS-STARTPTS[reference]; \
                         [1:v]crop=3000:2160:0:0, setpts=PTS-STARTPTS[distorted]; \
-                        [distorted][reference]libvmaf=psnr=1:ssim=1:log_fmt=xml:log_path=/dev/stdout/',
-           '-f', 'null -'
+                        [distorted][reference]libvmaf=psnr=1:ssim=1:log_fmt=xml:log_path={log_path}.xml',
+           '-f', 'null', '-'
            ]
     return subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+
+def parse_vmaf():
+    pattern = '<fyi numOfFrames="750" aggregateVMAF="(.*)" aggregatePSNR="(.*)" aggregateSSIM="(.*)" execFps="12.1109" timeTaken="61.9277" />'
+    stdout = p.stdout.read()
+    r = re.compile(pattern, re.DOTALL)
+    searched = r.search(stdout)
+    if not searched:
+        print('No VMAF data matched')
+        return
+    vmaf = searched.group(1)
+    psnr = searched.group(2)
+    ssim = searched.group(3)
+    print(f'VMAF: {vmaf}, PSNR: {psnr}, SSIM: {ssim}')
 
 
 def run_mc(inputfile, speed='fast', crf=28):
@@ -136,7 +152,7 @@ if __name__ == '__main__':
 
     for inputfile in input_set:
         for speed in speed_set:
-            csv_file = f'data/ff_{inputfile}_{speed}.csv'
+            csv_file = f'../data/ff_{inputfile}_{speed}.csv'
             csv_columns = ['crf', 'fps', 'bitrate']
             result_data = []
             for crf in crf_set:
@@ -151,7 +167,7 @@ if __name__ == '__main__':
 
     for inputfile in input_set:
         for speed in speed_set:
-            csv_file = f'data/mc_{inputfile}_{speed}.csv'
+            csv_file = f'../data/mc_{inputfile}_{speed}.csv'
             csv_columns = ['crf', 'fps', 'bitrate']
             result_data = []
             for crf in crf_set:
@@ -167,7 +183,7 @@ if __name__ == '__main__':
     ref = f'{INPUT_PATH}/bike1.yuv'
     enc = f'{OUTPUT_PATH}/ff/bike1/fast/bike1_fast_crf34.hevc'
     p = run_vmaf(enc, ref, 25)
-    print(p.stdout)
+    parse_vmaf(p)
 
     for inputfile in input_set:
         calc_vmaf(inputfile, speed_set, crf_set, 'ff')
