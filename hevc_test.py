@@ -196,7 +196,7 @@ if __name__ == '__main__':
     # parse_vmaf(p)
 
     for inputfile in input_set:
-        calc_vmaf(inputfile, ['fast'], ['34'], 'ff')
-        # calc_vmaf(inputfile, speed_set, crf_set, 'mc')
+        calc_vmaf(inputfile, speed_set, crf_set, 'ff')
+        calc_vmaf(inputfile, speed_set, crf_set, 'mc')
 
     print('done')
