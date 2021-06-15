@@ -57,7 +57,7 @@ def run_vmaf(enc, ref, fps):
 
 def parse_vmaf(p):
     pattern = '<fyi numOfFrames="750" aggregateVMAF="(.*)" aggregatePSNR="(.*)" aggregateSSIM="(.*)" execFps="12.1109" timeTaken="61.9277" />'
-    stdout = p.stdout.read()
+    stdout = str(p.stdout.read())
     r = re.compile(pattern, re.DOTALL)
     searched = r.search(stdout)
     if not searched:
