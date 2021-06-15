@@ -40,7 +40,7 @@ def calc_vmaf(inputfile, speed_set, crf_set, method):
             enc = f'{OUTPUT_PATH}/{method}/{inputfile}/{speed}/{inputfile}_{speed}_crf{crf}.hevc'
             print(f'Calculating {inputfile} / {speed} / {crf}...')
             p = run_vmaf(enc, ref, fps)
-            vmaf, psnr, ssin = parse_vmaf(p)
+            vmaf, psnr, ssim = parse_vmaf(p)
             result_data.append({'psnr': psnr,
                                 'ssim': ssim,
                                 'vmaf': vmaf
