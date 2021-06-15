@@ -34,14 +34,15 @@ def calc_vmaf(inputfile, speed_set, crf_set, method):
 
     for speed in speed_set:
         csv_file = f'../data/vmaf/{method}_{inputfile}_{speed}.csv'
-        csv_columns = ['psnr', 'ssim', 'vmaf']
+        csv_columns = ['crf', 'psnr', 'ssim', 'vmaf']
         result_data = []
         for crf in crf_set:
             enc = f'{OUTPUT_PATH}/{method}/{inputfile}/{speed}/{inputfile}_{speed}_crf{crf}.hevc'
             print(f'Calculating {inputfile} / {speed} / {crf}...')
             p = run_vmaf(enc, ref, fps)
             vmaf, psnr, ssim = parse_vmaf(p)
-            result_data.append({'psnr': psnr,
+            result_data.append({'crf': crf,
+                                'psnr': psnr,
                                 'ssim': ssim,
                                 'vmaf': vmaf
                                 })
