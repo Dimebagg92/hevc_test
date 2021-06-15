@@ -27,6 +27,32 @@ FF_PRESET = {'fast': 'superfast',
 INPUT_PATH = '../original/4k'
 OUTPUT_PATH = '../result/4k'
 
+
+def calc_vmaf(inputfile, speed_set, crf_set, method):
+    fps = FPS_DICT[os.path.basename(os.path.splitext(inputfile)[0])]
+    ref = f'{INPUT_PATH}/{inputfile}.yuv'
+    for speed in speed_set:
+        for crf in crf_set:
+            enc = f'{OUTPUT_PATH}/{method}/{inputfile}/{speed}/{inputfile}_{speed}_crf{crf}.hevc'
+            print(f'Calculating {inputfile} / {speed} / {crf}...')
+            p = run_vmaf(enc, ref, fps)
+
+
+def run_vmaf(enc, ref, fps):
+    cmd = ['/home1/irteam/donghwan/ffmpeg-git-20210528-amd64-static/ffmpeg',
+           '-video_size', '3840x2160',
+           '-r', f'{fps}',
+           '-pixel_format', 'yuv420p',
+           '-i', f'{ref}',
+           '-i', f'{enc}',
+           '-lavfi', '[0:v]crop=3000:2160:0:0, setpts=PTS-STARTPTS[reference]; \
+                        [1:v]crop=3000:2160:0:0, setpts=PTS-STARTPTS[distorted]; \
+                        [distorted][reference]libvmaf=psnr=1:ssim=1:log_fmt=xml:log_path=/dev/stdout/',
+           '-f', 'null -'
+           ]
+    return subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+
 def run_mc(inputfile, speed='fast', crf=28):
     fps = FPS_DICT[os.path.basename(os.path.splitext(inputfile)[0])]
     input = f'{INPUT_PATH}/{inputfile}.yuv'
@@ -110,7 +136,7 @@ if __name__ == '__main__':
 
     for inputfile in input_set:
         for speed in speed_set:
-            csv_file = f'ff_{inputfile}_{speed}.csv'
+            csv_file = f'data/ff_{inputfile}_{speed}.csv'
             csv_columns = ['crf', 'fps', 'bitrate']
             result_data = []
             for crf in crf_set:
@@ -123,10 +149,9 @@ if __name__ == '__main__':
                                     })
             write_result_csv(csv_file, csv_columns, result_data)
 
-
     for inputfile in input_set:
         for speed in speed_set:
-            csv_file = f'ff_{inputfile}_{speed}.csv'
+            csv_file = f'data/mc_{inputfile}_{speed}.csv'
             csv_columns = ['crf', 'fps', 'bitrate']
             result_data = []
             for crf in crf_set:
@@ -139,5 +164,13 @@ if __name__ == '__main__':
                                     })
             write_result_csv(csv_file, csv_columns, result_data)
 
+    ref = f'{INPUT_PATH}/bike1.yuv'
+    enc = f'{OUTPUT_PATH}/ff/bike1/fast/bike1_fast_crf34.hevc'
+    p = run_vmaf(enc, ref, 25)
+    print(p.stdout)
+
+    for inputfile in input_set:
+        calc_vmaf(inputfile, speed_set, crf_set, 'ff')
+        calc_vmaf(inputfile, speed_set, crf_set, 'mc')
 
     print('done')
