@@ -190,13 +190,13 @@ if __name__ == '__main__':
     #                                 })
     #         write_result_csv(csv_file, csv_columns, result_data)
 
-    ref = f'{INPUT_PATH}/bike1.yuv'
-    enc = f'{OUTPUT_PATH}/ff/bike1/fast/bike1_fast_crf34.hevc'
-    p = run_vmaf(enc, ref, 25)
-    parse_vmaf(p)
+    # ref = f'{INPUT_PATH}/bike1.yuv'
+    # enc = f'{OUTPUT_PATH}/ff/bike1/fast/bike1_fast_crf34.hevc'
+    # p = run_vmaf(enc, ref, 25)
+    # parse_vmaf(p)
 
-    # for inputfile in input_set:
-    #     calc_vmaf(inputfile, speed_set, crf_set, 'ff')
-    #     calc_vmaf(inputfile, speed_set, crf_set, 'mc')
+    for inputfile in input_set:
+        calc_vmaf(inputfile, ['fast'], ['34'], 'ff')
+        # calc_vmaf(inputfile, speed_set, crf_set, 'mc')
 
     print('done')
