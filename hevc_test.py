@@ -182,7 +182,7 @@ if __name__ == '__main__':
     speed_set = ['fast', 'medium', 'slow']
     crf_set = [22, 24, 26, 28, 30, 32, 34]
 
-    run_test(['bike1'], ['fast'], ['22'], 'ff')
-    run_test(['bike1'], ['fast'], ['22'], 'mc')
+    run_test(input_set, speed_set, crf_set, 'ff')
+    run_test(input_set, speed_set, crf_set, 'mc')
 
     print('done')
