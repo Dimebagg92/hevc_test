@@ -44,7 +44,7 @@ def calc_vmaf(inputfile, speed_set, crf_set, method):
                        '-i', f'{enc}', f'{enc_raw}']
             subprocess.run(cmd_raw)
             print(f'Calculating {inputfile} / {speed} / {crf}...')
-            p = run_vmaf(enc, ref, fps)
+            p = run_vmaf(enc_raw, ref, fps)
             vmaf, psnr, ssim = parse_vmaf(p)
             result_data.append({'crf': crf,
                                 'psnr': psnr,
@@ -63,6 +63,9 @@ def run_vmaf(enc, ref, fps):
            '-r', f'{fps}',
            '-pixel_format', 'yuv420p',
            '-i', f'{ref}',
+           '-video_size', '3840x2160',
+           '-r', f'{fps}',
+           '-pixel_format', 'yuv420p',
            '-i', f'{enc}',
            '-lavfi', '[0:v]crop=w=3000:h=2160:x=0:y=0, setpts=PTS-STARTPTS[reference]; \
                         [1:v]crop=w=3000:h=2160:x=0:y=0, setpts=PTS-STARTPTS[distorted]; \
