@@ -37,7 +37,7 @@ def calc_vmaf(inputfile, speed, crf, method):
     print(f'Creating YUV...')
     cmd_raw = ['/home1/irteam/donghwan/ffmpeg-git-20210528-amd64-static/ffmpeg',
                '-i', f'{enc}', f'{enc_raw}',
-               '-hide_banner', '-loglevel error'
+               '-hide_banner', '-loglevel', 'error'
                ]
     subprocess.run(cmd_raw)
     print(f'Calculating {inputfile} / {speed} / {crf}...')
