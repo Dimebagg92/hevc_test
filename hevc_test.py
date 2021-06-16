@@ -64,11 +64,12 @@ def run_vmaf(enc, ref, fps):
            '-pixel_format', 'yuv420p',
            '-i', f'{ref}',
            '-i', f'{enc}',
-           '-lavfi', '[0:v]crop=3000:2160:0:0, setpts=PTS-STARTPTS[reference]; \
-                        [1:v]crop=3000:2160:0:0, setpts=PTS-STARTPTS[distorted]; \
+           '-lavfi', '[0:v]crop=w=3000:h=2160:x=0:y=0, setpts=PTS-STARTPTS[reference]; \
+                        [1:v]crop=w=3000:h=2160:x=0:y=0, setpts=PTS-STARTPTS[distorted]; \
                         [distorted][reference]libvmaf=log_path=/dev/stdout:log_fmt=xml:ssim=1:psnr=1',
            '-f', 'null', '-'
            ]
+
     return subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
 
