@@ -38,6 +38,11 @@ def calc_vmaf(inputfile, speed_set, crf_set, method):
         result_data = []
         for crf in crf_set:
             enc = f'{OUTPUT_PATH}/{method}/{inputfile}/{speed}/{inputfile}_{speed}_crf{crf}.hevc'
+            print(f'Creating YUV...')
+            cmd_raw = ['/home1/irteam/donghwan/ffmpeg-git-20210528-amd64-static/ffmpeg',
+                       '-i', f'{enc}', f'enc_raw']
+            enc_raw = f'{OUTPUT_PATH}/{method}/{inputfile}/{speed}/{inputfile}_{speed}_crf{crf}.yuv'
+            subprocess.run(cmd_raw)
             print(f'Calculating {inputfile} / {speed} / {crf}...')
             p = run_vmaf(enc, ref, fps)
             vmaf, psnr, ssim = parse_vmaf(p)
@@ -47,6 +52,8 @@ def calc_vmaf(inputfile, speed_set, crf_set, method):
                                 'vmaf': vmaf
                                 })
             write_result_csv(csv_file, csv_columns, result_data)
+            print(f'Deleting YUV...')
+            subprocess.run(['rm', f'{enc_raw}'])
 
 
 def run_vmaf(enc, ref, fps):
