@@ -36,7 +36,9 @@ def calc_vmaf(inputfile, speed, crf, method):
     enc_raw = f'{OUTPUT_PATH}/{method}/{inputfile}/{speed}/{inputfile}_{speed}_crf{crf}.yuv'
     print(f'Creating YUV...')
     cmd_raw = ['/home1/irteam/donghwan/ffmpeg-git-20210528-amd64-static/ffmpeg',
-               '-i', f'{enc}', f'{enc_raw}']
+               '-i', f'{enc}', f'{enc_raw}',
+               '-hide_banner', '-loglevel error'
+               ]
     subprocess.run(cmd_raw)
     print(f'Calculating {inputfile} / {speed} / {crf}...')
     p = run_vmaf(enc_raw, ref, fps)
@@ -118,42 +120,6 @@ def run_enc(inputfile, method, speed='fast', crf=28):
     return subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
 
-def run_mc(inputfile, speed='fast', crf=28):
-    fps = FPS_DICT[os.path.basename(os.path.splitext(inputfile)[0])]
-    input = f'{INPUT_PATH}/{inputfile}.yuv'
-    output = f'{OUTPUT_PATH}/mc/{inputfile}/{speed}/{inputfile}_{speed}_crf{crf}.hevc'
-
-    cmd = ['/home1/irteam/donghwan/demo_hevc_sdk_linux_x64_release/bin/sample_enc_hevc',
-           '-I420',
-           '-w', '3840',
-           '-h', '2160',
-           '-f', f'{fps}',
-           '-v', f'{input}',
-           '-o', f'{output}',
-           '-perf', f'{MC_PRESET[speed]}',
-           '-preset', '4k',
-           '-c', f'../config/crf{crf}.ini'
-           ]
-    return subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-
-
-def run_ffmpeg(inputfile, speed='fast', crf=28):
-    input = f'{INPUT_PATH}/{inputfile}.yuv'
-    output = f'{OUTPUT_PATH}/ff/{inputfile}/{speed}/{inputfile}_{speed}_crf{crf}.hevc'
-    cmd = ['/home1/irteam/donghwan/ffmpeg-git-20210528-amd64-static/ffmpeg',
-           '-y',
-           '-video_size', '3840x2160',
-           '-i', f'{input}',
-           '-c:v', 'libx265',
-           '-crf', f'{crf}',
-           '-preset', f'{FF_PRESET[speed]}',
-           '-c:a', 'aac',
-           '-b:a', '128k',
-           f'{output}'
-           ]
-    return subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-
-
 def parse_fps_bitrate(p, method):
     if method == 'mc':
         pattern = r'Average speed achieved \\t(\d*.*\d*) fps.*Average bitrate\s*(\d*.*\d*) kb/s'
@@ -170,28 +136,6 @@ def parse_fps_bitrate(p, method):
         print('Parse Error!')
         raise e
     return fps, bitrate
-
-
-# def parse_ffmpeg(p):
-#     pattern = r'encoded .* frames in .*s \((.*) fps\), (.*) kb/s, Avg QP:.*'
-#     stdout = str(p.stdout.read())
-#     try:
-#         fps, bitrate = _parse_stdout(pattern, stdout)
-#     except Exception as e:
-#         print('Parse Error!')
-#         raise e
-#     return fps, bitrate
-#
-#
-# def parse_mc(p):
-#     pattern = r'Average speed achieved \\t(\d*.*\d*) fps.*Average bitrate\s*(\d*.*\d*) kb/s'
-#     stdout = str(p.stdout.read())
-#     try:
-#         fps, bitrate = _parse_stdout(pattern, stdout)
-#     except Exception as e:
-#         print('Parse Error!')
-#         raise e
-#     return fps, bitrate
 
 
 def _parse_stdout(pattern, stdout):
@@ -219,7 +163,7 @@ def run_test(input_set, speed_set, crf_set, method):
             csv_columns = ['crf', 'bitrate', 'psnr', 'ssim', 'vmaf', 'fps']
             result_data = []
             for crf in crf_set:
-                print(f'Running {method} {inputfile}_{speed}_crf{crf}...')
+                print(f'Encoding {method} {inputfile}_{speed}_crf{crf}...')
                 p = run_enc(inputfile, method=method, speed=speed, crf=crf)
                 fps, bitrate = parse_fps_bitrate(p, method)
                 vmaf, psnr, ssim = calc_vmaf(inputfile, speed, crf, method)
@@ -240,48 +184,5 @@ if __name__ == '__main__':
 
     run_test(['bike1'], ['fast'], ['22'], 'ff')
     run_test(['bike1'], ['fast'], ['22'], 'mc')
-
-    # for inputfile in input_set:
-    #     for speed in speed_set:
-    #         csv_file = f'../data/ff_{inputfile}_{speed}.csv'
-    #         csv_columns = ['crf', 'bitrate', 'psnr', 'ssim', 'vmaf', 'fps']
-    #         result_data = []
-    #         for crf in crf_set:
-    #             print(f'Running FFmpeg {inputfile}_{speed}_crf{crf}...')
-    #             p = run_ffmpeg(inputfile, speed=speed, crf=crf)
-    #             fps, bitrate = parse_ffmpeg(p)
-    #             vmaf, psnr, ssim = calc_vmaf(inputfile, speed, crf, 'ff')
-    #             result_data.append({'crf': crf,
-    #                                 'fps': fps,
-    #                                 'bitrate': bitrate
-    #                                 })
-    #         write_result_csv(csv_file, csv_columns, result_data)
-    #
-    # for inputfile in input_set:
-    #     for speed in speed_set:
-    #         csv_file = f'../data/mc_{inputfile}_{speed}.csv'
-    #         csv_columns = ['crf', 'fps', 'bitrate']
-    #         result_data = []
-    #         for crf in crf_set:
-    #             print(f'Running MainConcept {inputfile}_{speed}_crf{crf}...')
-    #             p = run_mc(inputfile, speed=speed, crf=crf)
-    #             fps, bitrate = parse_mc(p)
-    #             result_data.append({'crf': crf,
-    #                                 'fps': fps,
-    #                                 'bitrate': bitrate
-    #                                 })
-    #         write_result_csv(csv_file, csv_columns, result_data)
-
-    # ref = f'{INPUT_PATH}/bike1.yuv'
-    # enc = f'{OUTPUT_PATH}/ff/bike1/fast/bike1_fast_crf34.hevc'
-    # p = run_vmaf(enc, ref, 25)
-    # parse_vmaf(p)
-
-    # for inputfile in input_set:
-    #     calc_vmaf(inputfile, speed_set, crf_set, 'ff')
-    #     calc_vmaf(inputfile, speed_set, crf_set, 'mc')
-
-    # for inputfile in ['bike1']:
-    #     calc_vmaf(inputfile, ['fast'], ['34'], 'mc')
 
     print('done')
