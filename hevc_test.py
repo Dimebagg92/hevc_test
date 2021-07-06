@@ -98,7 +98,7 @@ def run_enc(inputfile, method, speed='fast', crf=28):
                '-v', f'{input}',
                '-o', f'{output}',
                '-perf', f'{MC_PRESET[speed]}',
-               '-preset', '4k',
+               '-preset', 'main',
                '-c', f'../config/crf{crf}.ini'
                ]
     elif method == 'ff':
@@ -110,8 +110,7 @@ def run_enc(inputfile, method, speed='fast', crf=28):
                '-c:v', 'libx265',
                '-crf', f'{crf}',
                '-preset', f'{FF_PRESET[speed]}',
-               '-c:a', 'aac',
-               '-b:a', '128k',
+               '-c:a', 'copy',
                f'{output}'
                ]
     else:
