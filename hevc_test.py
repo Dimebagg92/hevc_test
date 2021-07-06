@@ -36,6 +36,7 @@ def calc_vmaf(inputfile, speed, crf, method):
     enc_raw = f'{OUTPUT_PATH}/{method}/{inputfile}/{speed}/{inputfile}_{speed}_crf{crf}.yuv'
     print(f'Creating YUV...')
     cmd_raw = ['/home1/irteam/donghwan/ffmpeg-git-20210528-amd64-static/ffmpeg',
+               '-y',
                '-i', f'{enc}', f'{enc_raw}',
                '-hide_banner', '-loglevel', 'error'
                ]
