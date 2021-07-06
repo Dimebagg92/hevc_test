@@ -24,8 +24,8 @@ FF_PRESET = {'fast': 'superfast',
              'slow': 'slow'
              }
 
-INPUT_PATH = '../original/4k'
-OUTPUT_PATH = '../result/4k'
+INPUT_PATH = '../original'
+OUTPUT_PATH = '../result'
 
 
 def calc_vmaf(inputfile, speed, crf, method):
@@ -88,7 +88,7 @@ def parse_vmaf(p):
 def run_enc(inputfile, method, speed='fast', crf=28):
     fps = FPS_DICT[os.path.basename(os.path.splitext(inputfile)[0])]
     input = f'{INPUT_PATH}/{inputfile}.yuv'
-    output = f'{OUTPUT_PATH}/{method}/{inputfile}/{speed}/{inputfile}_{speed}_crf{crf}.hevc'
+    output = f'{OUTPUT_PATH}/{method}/{inputfile}_{speed}_crf{crf}.hevc'
 
     if method == 'mc':
         cmd = ['/home1/irteam/donghwan/demo_hevc_sdk_linux_x64_release/bin/sample_enc_hevc',
@@ -157,17 +157,18 @@ def write_result_csv(csv_file, csv_columns, result_data):
 
 
 def run_test(input_set, speed_set, crf_set, method):
-    for inputfile in input_set:
-        for speed in speed_set:
-            csv_file = f'../data/{method}_{inputfile}_{speed}.csv'
-            csv_columns = ['crf', 'bitrate', 'psnr', 'ssim', 'vmaf', 'fps']
+    for speed in speed_set:
+        for inputfile in input_set:
+            csv_file = f'../data/{method}_{speed}.csv'
+            csv_columns = ['inputfile', 'crf', 'bitrate', 'psnr', 'ssim', 'vmaf', 'fps']
             result_data = []
             for crf in crf_set:
                 print(f'Encoding {method} {inputfile}_{speed}_crf{crf}...')
                 p = run_enc(inputfile, method=method, speed=speed, crf=crf)
                 fps, bitrate = parse_fps_bitrate(p, method)
                 vmaf, psnr, ssim = calc_vmaf(inputfile, speed, crf, method)
-                result_data.append({'crf': crf,
+                result_data.append({'inputfile': inputfile,
+                                    'crf': crf,
                                     'bitrate': bitrate,
                                     'psnr': psnr,
                                     'ssim': ssim,
