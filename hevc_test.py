@@ -41,7 +41,7 @@ def calc_vmaf(inputfile, speed, crf, method):
                '-hide_banner', '-loglevel', 'error'
                ]
     subprocess.run(cmd_raw)
-    print(f'Calculating {inputfile} / {speed} / {crf}...')
+    print(f'Calculating VMAF...')
     p = run_vmaf(enc_raw, ref, fps)
     vmaf, psnr, ssim = parse_vmaf(p)
     print(f'Deleting YUV...')
@@ -99,14 +99,13 @@ def run_enc(inputfile, method, speed='fast', crf=28):
                '-v', f'{input}',
                '-o', f'{output}',
                '-perf', f'{MC_PRESET[speed]}',
-               '-preset', 'main',
+               # '-preset', 'main',
                '-c', f'../config/crf{crf}.ini'
                ]
     elif method == 'ff':
         cmd = ['/home1/irteam/donghwan/ffmpeg-git-20210528-amd64-static/ffmpeg',
                '-y',
                '-video_size', '3840x2160',
-               '-r', f'{fps}',
                '-i', f'{input}',
                '-c:v', 'libx265',
                '-crf', f'{crf}',
