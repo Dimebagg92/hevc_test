@@ -158,10 +158,10 @@ def write_result_csv(csv_file, csv_columns, result_data):
 
 def run_test(input_set, speed_set, crf_set, method):
     for speed in speed_set:
+        csv_file = f'../data/{method}_{speed}.csv'
+        csv_columns = ['inputfile', 'crf', 'bitrate', 'psnr', 'ssim', 'vmaf', 'fps']
+        result_data = []
         for inputfile in input_set:
-            csv_file = f'../data/{method}_{speed}.csv'
-            csv_columns = ['inputfile', 'crf', 'bitrate', 'psnr', 'ssim', 'vmaf', 'fps']
-            result_data = []
             for crf in crf_set:
                 print(f'Encoding {method} {inputfile}_{speed}_crf{crf}...')
                 p = run_enc(inputfile, method=method, speed=speed, crf=crf)
@@ -175,7 +175,7 @@ def run_test(input_set, speed_set, crf_set, method):
                                     'vmaf': vmaf,
                                     'fps': fps,
                                     })
-            write_result_csv(csv_file, csv_columns, result_data)
+        write_result_csv(csv_file, csv_columns, result_data)
 
 
 if __name__ == '__main__':
