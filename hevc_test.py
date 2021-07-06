@@ -32,8 +32,8 @@ def calc_vmaf(inputfile, speed, crf, method):
     fps = FPS_DICT[os.path.basename(os.path.splitext(inputfile)[0])]
     ref = f'{INPUT_PATH}/{inputfile}.yuv'
 
-    enc = f'{OUTPUT_PATH}/{method}/{inputfile}/{speed}/{inputfile}_{speed}_crf{crf}.hevc'
-    enc_raw = f'{OUTPUT_PATH}/{method}/{inputfile}/{speed}/{inputfile}_{speed}_crf{crf}.yuv'
+    enc = f'{OUTPUT_PATH}/{method}/{inputfile}_{speed}_crf{crf}.hevc'
+    enc_raw = f'{OUTPUT_PATH}/{method}/{inputfile}_{speed}_crf{crf}.yuv'
     print(f'Creating YUV...')
     cmd_raw = ['/home1/irteam/donghwan/ffmpeg-git-20210528-amd64-static/ffmpeg',
                '-y',
