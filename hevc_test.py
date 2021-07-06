@@ -105,6 +105,7 @@ def run_enc(inputfile, method, speed='fast', crf=28):
         cmd = ['/home1/irteam/donghwan/ffmpeg-git-20210528-amd64-static/ffmpeg',
                '-y',
                '-video_size', '3840x2160',
+               '-r', f'{fps}',
                '-i', f'{input}',
                '-c:v', 'libx265',
                '-crf', f'{crf}',
