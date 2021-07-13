@@ -4,6 +4,7 @@ import os.path
 import sys
 import csv
 import subprocess
+import configparser
 
 FPS_DICT = {'bike1': 25,
             'circuit1': 29.97,
@@ -36,6 +37,7 @@ FF_PRESET = {'fast': 'superfast',
 
 INPUT_PATH = '../original'
 OUTPUT_PATH = '../result'
+CONFIG_PATH = '../config'
 
 
 def calc_vmaf(inputfile, speed, crf, method):
@@ -207,6 +209,54 @@ def run_test(input_set, speed_set, crf_set, method):
                                     })
                 print(f'Bitrate: {bitrate}, VMAF: {vmaf}, fps: {fps}')
         write_result_csv(csv_file, csv_columns, result_data)
+
+
+def generate_config():
+    for crf in range(1, 52):
+        _write_sw_config(crf)
+        _write_hybrid_config(crf)
+        _write_driven_config(crf)
+
+
+def _write_sw_config(crf):
+    sw_config = os.path.join(CONFIG_PATH, f'crf{crf}.ini')
+    config = configparser.ConfigParser()
+    config['HEVC Layer 0000'] = {'width': '3840',
+                                 'height': '2160',
+                                 'bit_rate_mode': 'HEVC_CRF',
+                                 'rate_factor': f'{crf}'
+                                 }
+    with open(sw_config, 'w') as configfile:
+        config.write(configfile)
+
+
+def _write_hybrid_config(crf):
+    hybrid_config = os.path.join(CONFIG_PATH, f'crf{crf}_hybrid.ini')
+    config = configparser.ConfigParser()
+    config['HEVC Settings'] = {'hw_acceleration': '2',
+                               'hw_acc_mode': '2'}
+    config['HEVC Layer 0000'] = {'width': '3840',
+                                 'height': '2160',
+                                 'bit_rate_mode': 'HEVC_CRF',
+                                 'rate_factor': f'{crf}'
+                                 }
+    with open(sw_config, 'w') as configfile:
+        config.write(configfile)
+
+
+def _write_driven_config(crf):
+    driven_config = os.path.join(CONFIG_PATH, f'crf{crf}_driven.ini')
+    config = configparser.ConfigParser()
+    config['HEVC Settings'] = {'hw_acceleration': '2',
+                               'hw_acc_mode': '1'}
+    config['HEVC Layer 0000'] = {'width': '3840',
+                                 'height': '2160',
+                                 'bit_rate_mode': 'HEVC_CRF',
+                                 'rate_factor': f'{crf}',
+                                 'hw_acc_indices': '{0, 1}'
+                                 }
+    with open(sw_config, 'w') as configfile:
+        config.write(configfile)
 
 
 if __name__ == '__main__':
