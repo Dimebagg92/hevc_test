@@ -19,6 +19,16 @@ MC_PRESET = {'fast': 19,
              'slow': 27
              }
 
+MC_NVENC_PRESET = {'fast': 19,
+                   'medium': 23,
+                   'slow': 27
+                   }
+
+#MC_NVENC_PRESET = {'perf28': 28,
+#                   'perf24': 24,
+#                   'perf20': 20
+#                   }
+
 FF_PRESET = {'fast': 'superfast',
              'medium': 'fast',
              'slow': 'slow'
@@ -98,7 +108,7 @@ def run_enc(inputfile, method, speed='fast', crf=28):
                '-preset', '4k',
                '-c', f'../config/crf{crf}.ini'
                ]
-    elif method == 'mc_nvenc':
+    elif method == 'mc_hybrid':
         cmd = ['/home1/irteam/donghwan/demo_hevc_sdk_linux_x64_release/bin/sample_enc_hevc',
                '-I420',
                '-w', '3840',
@@ -106,11 +116,21 @@ def run_enc(inputfile, method, speed='fast', crf=28):
                '-f', f'{fps}',
                '-v', f'{input}',
                '-o', f'{output}',
-               '-perf', f'{MC_PRESET[speed]}',
+               '-perf', f'{MC_NVENC_PRESET[speed]}',
                '-preset', '4k',
-               '-c', f'../config/crf{crf}.ini',
-               '-hw_acceleration', '2',
-               '-hw_acc_mode', '2' # hybrid mode
+               '-c', f'../config/crf{crf}_hybrid.ini',
+               ]
+    elif method == 'mc_driven':
+        cmd = ['/home1/irteam/donghwan/demo_hevc_sdk_linux_x64_release/bin/sample_enc_hevc',
+               '-I420',
+               '-w', '3840',
+               '-h', '2160',
+               '-f', f'{fps}',
+               '-v', f'{input}',
+               '-o', f'{output}',
+               '-perf', f'{MC_NVENC_PRESET[speed]}',
+               '-preset', '4k',
+               '-c', f'../config/crf{crf}_driven.ini',
                ]
     elif method == 'ff':
         cmd = ['/home1/irteam/donghwan/ffmpeg-git-20210528-amd64-static/ffmpeg',
@@ -131,7 +151,7 @@ def run_enc(inputfile, method, speed='fast', crf=28):
 
 
 def parse_fps_bitrate(p, method):
-    if method == 'mc' or  method == 'mc_nvenc':
+    if method in ['mc', 'mc_hybrid', 'mc_driven']:
         pattern = r'Average speed achieved \\t(\d*.*\d*) fps.*Average bitrate\s*(\d*.*\d*) kb/s'
     elif method == 'ff':
         pattern = r'encoded .* frames in .*s \((.*) fps\), (.*) kb/s, Avg QP:.*'
@@ -168,7 +188,7 @@ def write_result_csv(csv_file, csv_columns, result_data):
 
 def run_test(input_set, speed_set, crf_set, method):
     for speed in speed_set:
-        csv_file = f'../data/{method}_{speed}_2.csv'
+        csv_file = f'../data/{method}_{speed}_wide_crf.csv'
         csv_columns = ['inputfile', 'crf', 'bitrate', 'psnr', 'ssim', 'vmaf', 'fps']
         result_data = []
         for inputfile in input_set:
@@ -190,12 +210,16 @@ def run_test(input_set, speed_set, crf_set, method):
 
 
 if __name__ == '__main__':
-    input_set = ['bike1', 'game1']
-    speed_set = ['fast', 'slow']
-    crf_set = [22, 24, 26, 28]
+    #input_set = ['bike1', 'circuit1', 'city1', 'concert1', 'game1', 'movie1', 'tennis1']
+    #speed_set = ['fast', 'medium', 'slow']
+    #crf_set = [22, 24, 26, 28, 30, 32, 34]
+
+    input_set = ['bike1', 'circuit1', 'city1', 'concert1', 'game1', 'movie1', 'tennis1']
+    speed_set = ['fast']
+    crf_set = [14, 17, 20, 23, 26, 29, 32]
 
     #run_test(input_set, speed_set, crf_set, 'ff')
     run_test(input_set, speed_set, crf_set, 'mc')
-    run_test(input_set, speed_set, crf_set, 'mc_nvenc')
+    #run_test(input_set, speed_set, crf_set, 'mc_hybrid')
 
     print('done')
