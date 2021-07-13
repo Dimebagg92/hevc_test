@@ -240,7 +240,7 @@ def _write_hybrid_config(crf):
                                  'bit_rate_mode': 'HEVC_CRF',
                                  'rate_factor': f'{crf}'
                                  }
-    with open(sw_config, 'w') as configfile:
+    with open(hybrid_config, 'w') as configfile:
         config.write(configfile)
 
 
@@ -255,7 +255,7 @@ def _write_driven_config(crf):
                                  'rate_factor': f'{crf}',
                                  'hw_acc_indices': '{0, 1}'
                                  }
-    with open(sw_config, 'w') as configfile:
+    with open(driven_config, 'w') as configfile:
         config.write(configfile)
 
 
